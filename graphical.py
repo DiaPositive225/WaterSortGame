@@ -46,6 +46,9 @@ class bot_animator:
         self.rt = None
         self.vec = (0, 0)
         self.block = ((False, -1), (False, -1))
+        self.target_angle = 90
+        self.current_angle = 0
+        self.angle_quantum = self.target_angle / self.frame_lim
 
     def start(self, bot_m : tuple[pygame.Surface, pygame.Rect], bot_t : tuple[pygame.Surface, pygame.Rect], mov : tuple[tuple[bool, int], tuple[bool, int]], offset : tuple[int, int] = (0, -30)) -> None:
         self.active = True
@@ -66,6 +69,7 @@ class bot_animator:
                     screen.blit(self.t, self.rt)
                     r = self.rm.copy()
                     r.midtop = r.midtop[0] + int(self.vec[0] * self.frame), r.midtop[1] + int(self.vec[1] * self.frame)
+                    self.m.set_colorkey("0x000000")
                     screen.blit(self.m, r)
                     pygame.draw.line(screen, "red", self.rm.midtop, (self.rm.midtop[0] + self.vec[0] * self.frame_lim, self.rm.midtop[1] + self.vec[1] * self.frame_lim), 5)
             elif self.frame_lim <= self.frame < 2 * self.frame_lim:
