@@ -47,7 +47,7 @@ class bot_animator:
         self.vec = (0, 0)
         self.block = ((False, -1), (False, -1))
 
-    def start(self, bot_m : tuple[pygame.Surface, pygame.Rect], bot_t : tuple[pygame.Surface, pygame.Rect], mov : tuple[tuple[bool, int], tuple[bool, int]]) -> None:
+    def start(self, bot_m : tuple[pygame.Surface, pygame.Rect], bot_t : tuple[pygame.Surface, pygame.Rect], mov : tuple[tuple[bool, int], tuple[bool, int]], offset : tuple[int, int] = (0, -30)) -> None:
         self.active = True
         self.block = mov
         self.m = bot_m[0]
@@ -56,13 +56,18 @@ class bot_animator:
         self.rt = bot_t[1]
         r1 = bot_m[1].midtop
         r2 = bot_t[1].midtop
-        self.vec = (r2[0] - r1[0]) / self.frame_lim, (r2[1] - r1[1]) / self.frame_lim
+        self.vec = (r2[0] - r1[0] + offset[0]) / self.frame_lim, (r2[1] - r1[1] + offset[1]) / self.frame_lim
 
     def update(self) -> None:
         if self.active:
             self.frame += 1
             if self.frame < self.frame_lim:
-                pass
+                if type(self.rm) is pygame.Rect and type(self.rt) is pygame.Rect and type(self.t) is pygame.Surface and type(self.m) is pygame.Surface:
+                    screen.blit(self.t, self.rt)
+                    r = self.rm.copy()
+                    r.midtop = r.midtop[0] + int(self.vec[0] * self.frame), r.midtop[1] + int(self.vec[1] * self.frame)
+                    screen.blit(self.m, r)
+                    pygame.draw.line(screen, "red", self.rm.midtop, (self.rm.midtop[0] + self.vec[0] * self.frame_lim, self.rm.midtop[1] + self.vec[1] * self.frame_lim), 5)
             elif self.frame_lim <= self.frame < 2 * self.frame_lim:
                 pass
             elif 2 * self.frame_lim == self.frame:
