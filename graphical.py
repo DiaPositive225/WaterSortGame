@@ -47,7 +47,7 @@ class bot_animator:
         self.vec = (0, 0)
         self.block = ((False, -1), (False, -1))
 
-    def start(self, bot_m : tuple[pygame.Surface, pygame.Rect], bot_t : tuple[pygame.Surface, pygame.Rect], mov : tuple[tuple[bool, int], tuple[bool, int]]):
+    def start(self, bot_m : tuple[pygame.Surface, pygame.Rect], bot_t : tuple[pygame.Surface, pygame.Rect], mov : tuple[tuple[bool, int], tuple[bool, int]]) -> None:
         self.active = True
         self.block = mov
         self.m = bot_m[0]
@@ -57,6 +57,25 @@ class bot_animator:
         r1 = bot_m[1].midtop
         r2 = bot_t[1].midtop
         self.vec = (r2[0] - r1[0]) / self.frame_lim, (r2[1] - r1[1]) / self.frame_lim
+
+    def update(self) -> None:
+        if self.active:
+            self.frame += 1
+            if self.frame < self.frame_lim:
+                pass
+            elif self.frame_lim <= self.frame < 2 * self.frame_lim:
+                pass
+            elif 2 * self.frame_lim == self.frame:
+                self.frame = 0
+                self.active = False
+                self.a = None
+                self.ra = None
+                self.m = None
+                self.rm = None
+                self.t = None
+                self.rt = None
+                self.vec = (0, 0)
+                self.block = ((False, -1), (False, -1))
 
 class B_display:
     def __init__(self, b : Bottles, width : int = 30, height : int = 40, sep : int = 20) -> None:
@@ -79,8 +98,6 @@ class B_display:
             s -= row1
 
         # when moved
-        if mov != (-1, -1):
-            self.b.move(mov[0], mov[1])
         move_set = ((mov[0] >= row1,
                 (mov[0] - row1) if mov[0] >= row1 else mov[0]),
                (mov[1] >= row1,
@@ -140,10 +157,10 @@ class B_display:
                 screen.blit(curr_bot, rec)
         if mov != (-1, -1):
             self.anim.start((surf[0], surf[1]), (surf[2], surf[3]), move_set)
+            self.b.move(mov[0], mov[1])
+        self.anim.update()
 
     def click_lands(self, mPos : tuple[int,int]) -> int:
-        if self.anim.active:
-            return -1
         x = SIZE[0] // 2
         y = SIZE[1] // 2
         row1 = self.b.length // 2
@@ -176,7 +193,7 @@ while not done:
                     selection = -1
                 elif selection == -1:
                     selection = c
-                else:
+                elif not B.anim.active:
                     # B.b.move(selection, c)
                     move_set = (selection, c)
                     selection = -1
