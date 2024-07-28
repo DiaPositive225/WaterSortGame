@@ -70,24 +70,34 @@ class bot_animator:
                 if type(self.rm) is pygame.Rect and type(self.rt) is pygame.Rect and type(self.t) is pygame.Surface and type(self.m) is pygame.Surface:
                     screen.blit(self.t, self.rt)
                     r = self.rm.copy()
+                    self.m.set_colorkey("0x000000")
                     mer = pygame.transform.rotate(self.m, self.frame * self.angle_quantum)
                     r.midtop = r.midtop[0] + int(self.vec[0] * self.frame), r.midtop[1] + int(self.vec[1] * self.frame)
-                    self.m.set_colorkey("0x000000")
                     screen.blit(mer, r)
                     # pygame.draw.line(screen, "red", self.rm.midtop, (self.rm.midtop[0] + self.vec[0] * self.frame_lim, self.rm.midtop[1] + self.vec[1] * self.frame_lim), 5)
             elif self.frame == self.frame_lim:
+                if type(self.rm) is pygame.Rect and type(self.rt) is pygame.Rect and type(self.t) is pygame.Surface and type(self.m) is pygame.Surface:
+                    screen.blit(self.t, self.rt)
+                    r = self.rm.copy()
+                    self.m.set_colorkey("0x000000")
+                    mer = pygame.transform.rotate(self.m, self.frame * self.angle_quantum)
+                    r.midtop = r.midtop[0] + int(self.vec[0] * self.frame), r.midtop[1] + int(self.vec[1] * self.frame)
+                    screen.blit(mer, r)
                 self.t = self.nt
                 self.m = self.nm
             elif self.frame_lim < self.frame < 2 * self.frame_lim:
                 if type(self.rm) is pygame.Rect and type(self.rt) is pygame.Rect and type(self.t) is pygame.Surface and type(self.m) is pygame.Surface:
-                    fram = self.frame - self.frame
+                    fram = self.frame- self.frame_lim
                     screen.blit(self.t, self.rt)
                     r = self.rm.copy()
+                    self.m.set_colorkey("0x000000")
                     mer = pygame.transform.rotate(self.m, self.target_angle - fram * self.angle_quantum)
                     r.midtop = r.midtop[0] + int( self.vec[0] * (self.frame_lim - fram)), r.midtop[1] + int(self.vec[1] * (self.frame_lim - fram))
-                    self.m.set_colorkey("0x000000")
                     screen.blit(mer, r)
             elif 2 * self.frame_lim == self.frame:
+                if type(self.rm) is pygame.Rect and type(self.rt) is pygame.Rect and type(self.t) is pygame.Surface and type(self.m) is pygame.Surface:
+                    screen.blit(self.m, self.rm)
+                    screen.blit(self.t, self.rt)
                 self.frame = 0
                 self.active = False
                 self.a = None
