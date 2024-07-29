@@ -62,6 +62,7 @@ class bot_animator:
         r1 = bot_m[1].midtop
         r2 = bot_t[1].midtop
         self.vec = (r2[0] - r1[0] + offset[0]) / self.frame_lim, (r2[1] - r1[1] + offset[1]) / self.frame_lim
+        self.done = False
 
     def update(self) -> None:
         if self.active:
@@ -108,6 +109,7 @@ class bot_animator:
                 self.rt = None
                 self.vec = (0, 0)
                 self.block = ((False, -1), (False, -1))
+                self.done = True
 
 class B_display:
     def __init__(self, b : Bottles, width : int = 30, height : int = 40, sep : int = 20) -> None:
@@ -115,7 +117,7 @@ class B_display:
         self.width = width
         self.height = height
         self.separation = sep
-        self.anim = bot_animator()
+        self.anim = []
 
     def draw(self, s : int = -1, mov : tuple[int, int] = (-1, -1)) -> None:
         # define the middle with x, y and determine how many bottles per row
@@ -161,7 +163,7 @@ class B_display:
             elif not move_set[1][0] and move_set[1][1] == i:
                 surf[2] =  curr_bot
                 surf[3] = rec
-            elif not (not self.anim.block[0][0] and self.anim.block[0][1] == i or not self.anim.block[1][0] and self.anim.block[1][1] == i): 
+            elif not (self.anim_blocked(False, i)): 
                 screen.blit(curr_bot, rec)
         for i, bot in enumerate(self.b.bottles[row1:]):
             # idem
@@ -185,10 +187,11 @@ class B_display:
             elif  move_set[1][0] and move_set[1][1] == i:
                 surf[2] =  curr_bot
                 surf[3] = rec
-            elif not ( self.anim.block[0][0] and self.anim.block[0][1] == i or  self.anim.block[1][0] and self.anim.block[1][1] == i): 
+            elif not (self.anim_blocked(True, i)): 
                 screen.blit(curr_bot, rec)
         if mov != (-1, -1):
             self.b.move(mov[0], mov[1])
+            self.anim.append(bot_animator())
             for i in range(2):
                 curr_bot = pygame.Surface((self.width, 4*self.height))
                 curr_bot.fill("darkgray")
@@ -203,8 +206,21 @@ class B_display:
                 rec.bottomleft = 0, 4 * self.height
                 curr_bot.blit(bottom_bit, rec)
                 surf[4+i] = curr_bot.copy()
-            self.anim.start((surf[0], surf[1], surf[4]), (surf[2], surf[3], surf[5]), move_set)
-        self.anim.update()
+            self.anim[-1].start((surf[0], surf[1], surf[4]), (surf[2], surf[3], surf[5]), move_set)
+        self.anim_update()
+
+    def anim_blocked(self, rbool : bool, index : int) -> bool:
+        bs = False
+        for a in self.anim:
+            bs = bs or (a.block[0][0] == rbool and a.block[0][1] == index or a.block[1][0] == rbool and a.block[1][1] == index)
+        return bs
+
+    def anim_update(self):
+        for a in self.anim:
+            a.update()
+        if len(self.anim) >= 1 and self.anim[0].done:
+            self.anim.pop(0)
+
 
     def click_lands(self, mPos : tuple[int,int]) -> int:
         x = SIZE[0] // 2
@@ -239,7 +255,7 @@ while not done:
                     selection = -1
                 elif selection == -1:
                     selection = c
-                elif not B.anim.active:
+                else:
                     # B.b.move(selection, c)
                     move_set = (selection, c)
                     selection = -1
